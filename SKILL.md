@@ -66,6 +66,18 @@ python scripts/fetch_and_analyze.py sh600690 海尔智家 2026-07-22 --force
 - `drawdowns.md` — 回撤 + Alpha 分解(程序算数据)
 - 其余 .md 骨架(待 AI 填写)
 
+### 股东增减持数据(已知缺口,需人工补充)
+
+akshare **无港股/A股股东增减持接口**,且本环境 WebSearch 不联网,无法自动获取大股东减持记录。这是 events.md 事件梳理的已知薄弱点——靠记忆写增减持必然遗漏(如腾讯多次减持快手)。
+
+**权威数据源(需人工查后补入 events.md)**:
+- 港股:港交所披露易 https://www1.hkexnews.hk/ → 大股东权益披露(Substantial Shareholder's Interests, SFO Part XV),输入代码查每次5%+持股变动
+- A股:巨潮资讯网 http://www.cninfo.com.cn/ → 股东持股变动,或 akshare `stock_ggcg_em`(高管增减持)/`stock_share_change_cninfo`(股本变动)
+- 美股:SEC EDGAR Form 4(内部人交易)/ Schedule 13D/13G(5%+大股东)
+
+**处理方式**:events.md 中涉及增减持的节点,price 用 price_lookup 对齐真实价,事件描述标注"以XX披露为准",并在已知遗漏时显式留"待补充"节点(诚实优于编造)。
+
+
 ### 增量机制(RAG)
 
 1. 读 `data.json` 的 `full_fetch_date`,超 6 个月提醒 `--force`
