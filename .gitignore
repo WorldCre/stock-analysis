@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 旧版中间产物目录(v3 已改用 analyses/<stock>/)
+scripts/out/
+
+# 临时分析文件
+analyses/*/tmp_*
+*.tmp

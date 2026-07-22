@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>海尔智家 未来展望仪表盘</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--card2:#1c2330;--border:#30363d;--blue:#58a6ff;--green:#3fb950;--red:#f85149;--yellow:#d29922;--text:#e6edf3;--text2:#8b949e}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;padding:20px;line-height:1.6}
+h1{font-size:24px;margin-bottom:4px}h2{font-size:18px;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}h3{font-size:15px;margin:16px 0 8px;color:var(--blue)}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.kpi .label{font-size:12px;color:var(--text2)}.kpi .val{font-size:20px;font-weight:600;margin-top:4px}
+.kpi .val.up{color:var(--green)}.kpi .val.down{color:var(--red)}.kpi .val.blue{color:var(--blue)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;height:500px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border)}th{color:var(--text2);font-weight:600;font-size:12px}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.phase-card{background:var(--card2);border-left:3px solid var(--blue);border-radius:4px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:background .15s}
+.phase-card:hover{background:#222a38}.phase-head{display:flex;justify-content:space-between;align-items:center}.phase-title{font-weight:600;font-size:14px}.phase-change{font-size:13px;font-weight:600}.phase-body{font-size:12.5px;color:var(--text2);margin-top:6px;display:none}.phase-card.open .phase-body{display:block}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:#21262d;color:var(--text2)}
+.drawdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.dd-card{background:var(--card2);border-radius:6px;padding:12px;border-top:2px solid var(--red)}.dd-card .depth{font-size:20px;font-weight:700;color:var(--red)}
+.dd-type{display:inline-block;padding:1px 7px;border-radius:3px;font-size:10px;margin-left:6px}
+.dd-type.sys{background:#1f3a5f;color:var(--blue)}.dd-type.idio{background:#3f1f1f;color:var(--red)}.dd-type.mixed{background:#3f2f1f;color:var(--yellow)}
+.panel{position:fixed;top:0;right:-440px;width:420px;height:100vh;background:var(--card);border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.5);padding:24px;transition:right .3s;z-index:100;overflow-y:auto}.panel.open{right:0}
+.panel-close{position:absolute;top:16px;right:16px;cursor:pointer;color:var(--text2);font-size:20px;background:none;border:none}
+.panel-nav{display:flex;justify-content:space-between;margin-top:20px}.panel-nav button{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 14px;cursor:pointer;font-size:13px}.panel-nav button:hover{background:#222a38}
+.panel-date{color:var(--blue);font-size:13px}.panel-price{font-size:28px;font-weight:700;margin:6px 0}.panel-title{font-size:18px;font-weight:600;margin-bottom:10px}.panel-bg{font-size:13.5px;color:var(--text2);line-height:1.7}
+.hint{font-size:12px;color:var(--text2);text-align:center;margin-top:8px}
+.disclaimer{font-size:11px;color:var(--text2);text-align:center;margin-top:24px;padding:12px;border:1px dashed var(--border);border-radius:6px}
+.real-badge{display:inline-block;background:#1f3a1f;color:var(--green);padding:2px 8px;border-radius:3px;font-size:11px;margin-left:8px}
+.hero{background:linear-gradient(135deg,#1a2332,#161b22);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px}
+.hero h1{margin-bottom:8px}.thesis{font-size:15px;margin:10px 0}
+.hero-kpi{display:flex;gap:24px;flex-wrap:wrap;margin-top:14px}.hero-kpi div{font-size:13px}.hero-kpi .v{font-size:20px;font-weight:700;color:var(--blue);display:block}
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+.sc{border-radius:8px;padding:14px;border:1px solid var(--border)}
+.sc.bull{background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.3)}.sc.base{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.3)}.sc.bear{background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.3)}
+.sc .name{font-weight:700;font-size:15px}.sc .target{font-size:22px;font-weight:700;margin:6px 0}
+.floor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.floor{background:var(--card2);border-radius:6px;padding:14px;border-top:3px solid var(--yellow)}
+.floor .method{font-weight:600;color:var(--yellow);font-size:13px}.floor .range{font-size:18px;font-weight:700;margin:6px 0;color:var(--blue)}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.cat-up{border-left:3px solid var(--green)}.cat-down{border-left:3px solid var(--red)}
+.cat-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}.stars{color:var(--yellow)}
+.strat-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}.strat-range{min-width:110px;font-weight:600;color:var(--blue);font-size:13px}.strat-label{min-width:90px;font-size:12px;padding:2px 8px;border-radius:3px}
+</style></head><body>
+<div class="hero">
+<h1>🔮 海尔智家 未来展望仪表盘 <span class="real-badge">✓ 真实数据</span></h1>
+<div class="sub">sh600690 (A股) | 当前 ¥21.92 (2026-07-22) | 预测 2026Q4→2028Q1</div>
+<div class="thesis">📌 当前¥21.92较ATH(¥31.65,2024-10-08)回撤-30.7%。基准看至¥25.0(+14.1%),估值底部三重验证支撑。</div>
+<div class="hero-kpi">
+<div>基准目标<span class="v">¥25.0</span></div>
+<div>乐观<span class="v" style="color:var(--green)">¥30.0</span></div>
+<div>悲观<span class="v" style="color:var(--red)">¥16.5</span></div>
+<div>机构均值<span class="v">¥26.4</span></div></div></div>
+<h2>🎯 三情景</h2>
+<div class="scenario-grid">
+<div class="sc bull"><div class="name">🟢 乐观</div><div class="target pos">¥30.0 (+36.9%)</div></div>
+<div class="sc base"><div class="name">🔵 基准</div><div class="target" style="color:var(--blue)">¥25.0 (+14.1%)</div></div>
+<div class="sc bear"><div class="name">🔴 悲观</div><div class="target neg">¥16.5 (-24.7%)</div></div>
+</div>
+<h2>📊 三情景路径</h2><div class="chart-wrap" id="scenarioChart" style="height:400px"></div>
+<h2>🛡️ 估值验证</h2><div class="floor-grid" id="floors"></div>
+<h2>🏛️ 机构目标价 (均值¥26.4)</h2><div class="chart-wrap" id="targetChart" style="height:380px"></div>
+<h2>⚡ 催化剂矩阵</h2><div class="cat-grid" id="catGrid"></div>
+<h2>👁️ 关键观测节点</h2><div class="card"><table><thead><tr><th>时间</th><th>事件</th><th>看涨</th><th>看跌</th></tr></thead><tbody id="wpBody"></tbody></table></div>
+<h2>📐 策略框架</h2><div class="card" id="stratBody"></div>
+<div class="disclaimer">⚠️ 价格为真实数据,情景与目标价为分析估算,不构成投资建议。<br>© 2026-07-22 海尔智家</div>
+<script>
+const bull=[22.5, 23.8, 25.2, 26.8, 28.2, 30.0],base=[22.0, 22.5, 23.0, 23.5, 24.2, 25.0],bear=[21.0, 19.8, 18.8, 18.0, 17.3, 16.5],L=21.92,labels=['2026Q4','2027Q1','2027Q2','2027Q3','2027Q4','2028Q1'];
+const sC=echarts.init(document.getElementById('scenarioChart'),'dark');
+sC.setOption({backgroundColor:'transparent',tooltip:{trigger:'axis'},legend:{data:['乐观','基准','悲观','当前价'],textStyle:{color:'#e6edf3'},top:0},grid:{left:50,right:30,top:30,bottom:30},xAxis:{type:'category',data:labels,axisLabel:{color:'#8b949e'}},yAxis:{type:'value',axisLabel:{color:'#8b949e',formatter:v=>'¥'+v},splitLine:{lineStyle:{color:'#21262d'}}},series:[{name:'当前价',type:'line',data:Array(6).fill(L),lineStyle:{color:'#8b949e',type:'dashed',width:1},symbol:'none'},{name:'乐观',type:'line',data:bull,smooth:true,lineStyle:{color:'#3fb950',width:2.5}},{name:'基准',type:'line',data:base,smooth:true,lineStyle:{color:'#58a6ff',width:2.5},areaStyle:{color:'rgba(88,166,255,0.1)'}},{name:'悲观',type:'line',data:bear,smooth:true,lineStyle:{color:'#f85149',width:2.5}}]});
+const floors=[{"method": "历史PE底部法", "range": "¥16.5-20.0", "logic": "触底PE(10-13x)×2026E EPS(≈¥1.75),PE 10x为历史极端底部"}, {"method": "SOTP悲观法", "range": "¥17.5-19.5", "logic": "国内白电(8x)+卡萨帝(12x)+GEA(8x)+Candy/FPA(7x)分部加总"}, {"method": "斐波那契法", "range": "¥19.25-25.5", "logic": "ATH(31.65)→52周低(19.25)回撤位,支撑19.25/21.5/23.2/25.5"}, {"method": "Comps可比公司", "range": "¥20-24", "logic": "vs美的(PE~13x)/格力(PE~8x)的PE-PB矩阵,海尔高端化应享溢价"}, {"method": "DCF(参考)", "range": "¥18-26", "logic": "假设WACC 9%、永续增长率3%,对假设敏感仅作参考"}];const fE=document.getElementById('floors');
+floors.forEach(f=>{fE.innerHTML+=`<div class="floor"><div class="method">${f.method}</div><div class="range">${f.range}</div><div style="font-size:11.5px;color:var(--text2)">${f.logic}</div></div>`;});
+const targets=[{"inst": "中金", "target": 29.0}, {"inst": "摩根士丹利", "target": 28.5}, {"inst": "招商", "target": 28.0}, {"inst": "中信", "target": 27.5}, {"inst": "华泰", "target": 27.0}, {"inst": "高盛", "target": 26.5}, {"inst": "花旗", "target": 26.0}, {"inst": "招银国际", "target": 25.8}, {"inst": "国信", "target": 25.5}, {"inst": "野村", "target": 25.0}, {"inst": "瑞银", "target": 24.5}, {"inst": "建银国际", "target": 24.0}];const tC=echarts.init(document.getElementById('targetChart'),'dark');
+tC.setOption({backgroundColor:'transparent',tooltip:{trigger:'axis'},grid:{left:50,right:30,top:20,bottom:30},xAxis:{type:'category',data:targets.map(x=>x.inst),axisLabel:{color:'#8b949e',font:{size:10},rotate:30}},yAxis:{type:'value',axisLabel:{color:'#8b949e',formatter:v=>'¥'+v},splitLine:{lineStyle:{color:'#21262d'}}},series:[{type:'bar',data:targets.map(x=>({value:x.target,itemStyle:{color:x.target>=L?'#3fb950':'#f85149'}})),barWidth:'60%',markLine:{data:[{yAxis:L}],lineStyle:{color:'#d29922',type:'dashed'},label:{formatter:'当前¥'+L,color:'#d29922'}}}]});
+const cats={"upside": [{"event": "以旧换新加码延续至2028", "star": 5}, {"event": "GEA利润率突破10%", "star": 4}, {"event": "卡萨帝高端份额破15%", "star": 4}, {"event": "中美关税缓和", "star": 4}, {"event": "分红率提升至50%+", "star": 3}], "downside": [{"event": "以旧换新政策退出", "star": 5}, {"event": "美国对华家电加征关税", "star": 5}, {"event": "地产竣工继续下滑", "star": 4}, {"event": "原材料(铜/钢)大涨", "star": 3}, {"event": "消费降级深化", "star": 3}], "analyst_targets": [{"inst": "中金", "target": 29.0}, {"inst": "摩根士丹利", "target": 28.5}, {"inst": "招商", "target": 28.0}, {"inst": "中信", "target": 27.5}, {"inst": "华泰", "target": 27.0}, {"inst": "高盛", "target": 26.5}, {"inst": "花旗", "target": 26.0}, {"inst": "招银国际", "target": 25.8}, {"inst": "国信", "target": 25.5}, {"inst": "野村", "target": 25.0}, {"inst": "瑞银", "target": 24.5}, {"inst": "建银国际", "target": 24.0}]};const cG=document.getElementById('catGrid');
+cG.innerHTML=`<div class="card cat-up"><h3 style="color:var(--green)">⬆️ 上行</h3>${(cats.upside||[]).map(c=>`<div class="cat-item"><span>${c.event}</span><span class="stars">${'★'.repeat(c.star||3)}</span></div>`).join('')}</div><div class="card cat-down"><h3 style="color:var(--red)">⬇️ 下行</h3>${(cats.downside||[]).map(c=>`<div class="cat-item"><span>${c.event}</span><span class="stars">${'★'.repeat(c.star||3)}</span></div>`).join('')}</div>`;
+const wp=[{"time": "2026-08", "event": "2026中报", "bull": "营收+5%+,净利+10%+", "bear": "营收下滑,毛利收缩"}, {"time": "2026-Q4", "event": "2027年以旧换新政策定调", "bull": "明确延续加码", "bear": "缩水或退出"}, {"time": "2026-11", "event": "美国大选后关税政策", "bull": "关税缓和/豁免", "bear": "加征新关税"}, {"time": "2027-03", "event": "2026年报+GEA全年", "bull": "GEA利润率破10%", "bear": "GEA利润率下滑"}, {"time": "2027-H1", "event": "地产竣工数据", "bull": "竣工同比转正", "bear": "继续双位数下滑"}, {"time": "2027-08", "event": "2027中报", "bull": "海外+国内双轮驱动", "bear": "海外拖累"}];const wB=document.getElementById('wpBody');(wp||[]).forEach(w=>{wB.innerHTML+=`<tr><td>${w.time}</td><td>${w.event}</td><td class="pos">${w.bull||''}</td><td class="neg">${w.bear||''}</td></tr>`;});
+const strat=[{"range": "¥27-32", "label": "合理估值", "meaning": "PE16-18x,接近ATH区间,持有/观望"}, {"range": "¥23-27", "label": "低估", "meaning": "PE13-16x,具配置价值,逢低布局"}, {"range": "¥20-23", "label": "低估←当前", "meaning": "PE11-13x,当前¥21.85,重点配置区"}, {"range": "¥17-20", "label": "深度价值", "meaning": "PE9-11x,52周低¥19.25已接近,逆向布局"}, {"range": "<¥17", "label": "危机定价", "meaning": "PE<9x,系统性危机,评估基本面是否恶化"}];const sB=document.getElementById('stratBody');(strat||[]).forEach(s=>{sB.innerHTML+=`<div class="strat-row"><div class="strat-range">${s.range}</div><div class="strat-label" style="background:#21262d;color:var(--text2)">${s.label}</div><div style="font-size:13px;color:var(--text2)">${s.meaning}</div></div>`;});
+window.addEventListener('resize',()=>{sC.resize();tC.resize();});
+</script></body></html>
